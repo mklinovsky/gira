@@ -1,13 +1,7 @@
 import { $ } from "zx";
 
-export const Git = {
-  createBranch,
-  getCurrentBranch,
-};
-
-async function createBranch(branchName: string) {
-  const { stdout } = await $`git rev-parse --abbrev-ref HEAD`;
-  const currentBranch = stdout.trim();
+export async function createBranch(branchName: string) {
+  const currentBranch = await getCurrentBranch();
 
   if (currentBranch === branchName) {
     console.log(`Already on branch ${branchName}`);
@@ -15,10 +9,10 @@ async function createBranch(branchName: string) {
   }
 
   await $`git checkout -b ${branchName}`;
-  console.log(`Created and switched to branch ${branchName}`);
+  console.log(`Switched to branch ${branchName}`);
 }
 
-async function getCurrentBranch() {
+export async function getCurrentBranch() {
   const { stdout } = await $`git rev-parse --abbrev-ref HEAD`;
   return stdout.trim();
 }

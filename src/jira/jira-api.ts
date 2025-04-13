@@ -15,15 +15,16 @@ const apiUrl = `${BASE_URL}/rest/api/3`;
 
 export async function createIssue(
   summary: string,
-  issueName = "Task",
+  issueType = "Task",
   parentIssueKey?: string,
+  assignToMe?: boolean,
 ): Promise<string> {
   const payload: CreateIssuePayload = {
     fields: {
       project: { key: PROJECT_KEY },
-      assignee: { id: USER_ID },
       summary,
-      issuetype: { name: issueName },
+      issuetype: { name: issueType },
+      ...(assignToMe ? { assignee: { id: USER_ID } } : {}),
       ...(parentIssueKey ? { parent: { key: parentIssueKey } } : {}),
     },
   };

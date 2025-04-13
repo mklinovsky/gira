@@ -3,7 +3,7 @@ export type CreateIssuePayload = {
     project: {
       key: string;
     };
-    assignee: {
+    assignee?: {
       id: string;
     };
     summary: string;
