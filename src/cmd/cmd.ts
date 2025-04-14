@@ -1,12 +1,13 @@
 import { Command } from "@cliffy/command";
 import { createJiraIssueCommand } from "./commands/create-jira-issue.ts";
+import { changeIssueStatusCommand } from "./commands/change-issue-status-command.ts";
+import { createMergeRequestCommand } from "./commands/create-merge-request-command.ts";
 
 export async function createCmd() {
   await new Command()
     .name("gira")
     .version("0.0.1")
     .description("CLI tool for managing Gitlab and JIRA")
-
     .command("create", "Create a new JIRA issue")
     .arguments("<summary:string>")
     .option("-p, --parent <parent:string>", "Parent issue key")
@@ -16,7 +17,17 @@ export async function createCmd() {
     .option("-b --branch", "Create git branch")
     .option("-a --assign", "Assign to me")
     .action((options, ...args) =>
-      createJiraIssueCommand({ options, summary: args[0] }),
+      createJiraIssueCommand({ options, summary: args[0] })
     )
+    .command("status", "Change the status of a JIRA issue")
+    .arguments("<status:string>")
+    .option("-i, --issue <issue:string>", "Issue key")
+    .action((options, ...args) => {
+      changeIssueStatusCommand({ issue: options.issue, status: args[0] });
+    })
+    .command("mr", "Create a merge request")
+    .action(() => {
+      createMergeRequestCommand();
+    })
     .parse(Deno.args);
 }

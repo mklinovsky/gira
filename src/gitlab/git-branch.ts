@@ -9,7 +9,6 @@ export async function createBranch(branchName: string) {
   }
 
   await $`git checkout -b ${branchName}`;
-  console.log(`Switched to branch ${branchName}`);
 }
 
 export async function getCurrentBranch() {

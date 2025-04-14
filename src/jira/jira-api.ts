@@ -11,7 +11,7 @@ const USER_ID = requireEnv("JIRA_USER_ID");
 const BASE_URL = requireEnv("JIRA_URL");
 const PROJECT_KEY = requireEnv("JIRA_PROJECT_KEY");
 
-const apiUrl = `${BASE_URL}/rest/api/3`;
+const API_URL = `${BASE_URL}/rest/api/3`;
 
 export async function createIssue(
   summary: string,
@@ -30,7 +30,7 @@ export async function createIssue(
   };
 
   const { key } = await postJson<CreateIssuePayload, { key: string }>(
-    `${apiUrl}/issue`,
+    `${API_URL}/issue`,
     payload,
   );
 
@@ -44,7 +44,7 @@ export async function changeIssueStatus(
 ) {
   const payload = { transition: { id: statusId } };
 
-  const url = `${apiUrl}/issue/${issueKey}/transitions`;
+  const url = `${API_URL}/issue/${issueKey}/transitions`;
   await postJson<typeof payload>(url, payload);
 
   console.log(

@@ -1,5 +1,5 @@
 import * as JiraApi from "../../jira/jira-api.ts";
-import * as Git from "../../git/create-branch.ts";
+import * as Git from "../../gitlab/git-branch.ts";
 import { createBranchName } from "../../utils/branch-name-from-jira.ts";
 
 type CreateJiraIssueCommand = {
