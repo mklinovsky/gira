@@ -1,9 +1,5 @@
 import { requireEnv } from "../utils/utils.ts";
-import {
-  CreateIssuePayload,
-  IssueStatus,
-  IssueStatusById,
-} from "./jira.types.ts";
+import { CreateIssuePayload, IssueStatus } from "./jira.types.ts";
 
 const API_TOKEN = requireEnv("JIRA_API_TOKEN");
 const USER_EMAIL = requireEnv("JIRA_USER_EMAIL");
@@ -18,7 +14,7 @@ export async function createIssue(
   issueType = "Task",
   parentIssueKey?: string,
   assignToMe?: boolean,
-): Promise<string> {
+): Promise<{ key: string; url: string }> {
   const payload: CreateIssuePayload = {
     fields: {
       project: { key: PROJECT_KEY },
@@ -34,8 +30,10 @@ export async function createIssue(
     payload,
   );
 
-  console.log(`Created issue: ${BASE_URL}/browse/${key}`);
-  return key;
+  return {
+    key,
+    url: `${BASE_URL}/browse/${key}`,
+  };
 }
 
 export async function changeIssueStatus(
@@ -46,10 +44,6 @@ export async function changeIssueStatus(
 
   const url = `${API_URL}/issue/${issueKey}/transitions`;
   await postJson<typeof payload>(url, payload);
-
-  console.log(
-    `Changed status of issue ${issueKey} to ${IssueStatusById[statusId]}`,
-  );
 }
 
 function getHeaders(): HeadersInit {

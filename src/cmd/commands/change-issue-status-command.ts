@@ -28,4 +28,6 @@ export async function changeIssueStatusCommand({
     issueKey,
     IssueStatus[status as keyof typeof IssueStatus],
   );
+
+  console.log(`✅ Changed status of issue ${issueKey} to ${status}`);
 }

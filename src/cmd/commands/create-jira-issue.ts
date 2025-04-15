@@ -19,6 +19,7 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     assign: assignToMe,
     branch: createBranch,
   } = args.options;
+
   const createdIssue = await JiraApi.createIssue(
     args.summary,
     type,
@@ -26,10 +27,12 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     assignToMe,
   );
 
+  console.log(`✅ Issue created: ${createdIssue.url}`);
+
   if (!createBranch) {
     return;
   }
 
-  const branchName = createBranchName(createdIssue, args.summary);
+  const branchName = createBranchName(createdIssue.key, args.summary);
   await Git.createBranch(branchName);
 }

@@ -6,7 +6,7 @@ import {
   jiraKeyFromBranchName,
   jiraSummaryFromBranchName,
 } from "../../utils/jira-from-branch-name.ts";
-import { IssueStatus } from "../../jira/jira.types.ts";
+import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
 
 export async function createMergeRequestCommand() {
   const targetBranch = "master";
@@ -31,7 +31,13 @@ export async function createMergeRequestCommand() {
   const message = `:code_review: Pls review ${url} :pray:`;
 
   await $`echo ${message} | pbcopy`;
-  console.log("MR created, CR message copied to clipboard");
+  console.log("✅ MR created, CR message copied to clipboard");
 
   await JiraApi.changeIssueStatus(jiraKey ?? "", IssueStatus.InProgress);
+
+  console.log(
+    `✅ Changed status of issue ${jiraKey} to ${
+      IssueStatusById[IssueStatus.InProgress]
+    }`,
+  );
 }
