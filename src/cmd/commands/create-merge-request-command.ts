@@ -32,12 +32,13 @@ export async function createMergeRequestCommand() {
 
   await $`echo ${message} | pbcopy`;
   console.log("✅ MR created, CR message copied to clipboard");
+  console.log(url);
 
-  await JiraApi.changeIssueStatus(jiraKey ?? "", IssueStatus.InProgress);
+  await JiraApi.changeIssueStatus(jiraKey ?? "", IssueStatus.InReview);
 
   console.log(
     `✅ Changed status of issue ${jiraKey} to ${
-      IssueStatusById[IssueStatus.InProgress]
+      IssueStatusById[IssueStatus.InReview]
     }`,
   );
 }

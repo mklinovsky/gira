@@ -16,8 +16,9 @@ export async function createCmd() {
     })
     .option("-b --branch", "Create git branch")
     .option("-a --assign", "Assign to me")
+    .option("-s --start", "Start progress")
     .action((options, ...args) =>
-      createJiraIssueCommand({ options, summary: args[0] })
+      createJiraIssueCommand({ options, summary: args[0] }),
     )
     .command("status", "Change the status of a JIRA issue")
     .arguments("<status:string>")
