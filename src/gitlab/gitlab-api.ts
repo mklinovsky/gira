@@ -26,7 +26,7 @@ export async function createMergeRequest(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to create merge request: ${response}`);
+    throw new Error(`Failed to create merge request: ${response.statusText}`);
   }
 
   const data = await response.json();

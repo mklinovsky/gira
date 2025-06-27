@@ -22,7 +22,10 @@ export async function createCmd() {
     )
     .command("status", "Change the status of a JIRA issue")
     .arguments("<status:string>")
-    .option("-i, --issue <issue:string>", "Issue key")
+    .option(
+      "-i, --issue <issue:string>",
+      "Issue key, if not provided, will parse key from current branch name",
+    )
     .action((options, ...args) => {
       changeIssueStatusCommand({ issue: options.issue, status: args[0] });
     })

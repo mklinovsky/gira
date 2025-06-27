@@ -28,10 +28,9 @@ export async function createMergeRequestCommand() {
     targetBranch,
     title,
   );
-  const message = `:code_review: Pls review ${url} :pray:`;
 
-  await $`echo ${message} | pbcopy`;
-  console.log("✅ MR created, CR message copied to clipboard");
+  await $`echo ${url} | pbcopy`;
+  console.log("✅ MR created, link copied to clipboard");
   console.log(url);
 
   await JiraApi.changeIssueStatus(jiraKey ?? "", IssueStatus.InReview);
