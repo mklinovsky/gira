@@ -51,6 +51,7 @@ gira create <summary> [options]
 - `-a, --assign`: Assign the issue to yourself.
 - `-s, --start`: Start progress on the issue.
 
+
 ### Change JIRA Issue Status
 
 Change the status of an existing JIRA issue. If no issue key is provided, it
@@ -72,6 +73,23 @@ also updates the JIRA issue status to "In Review".
 ```bash
 gira mr
 ```
+
+### Usual Workflow
+
+```bash
+gira create -b -a -s "Fix it"
+```
+Will create a new JIRA issue with the summary "Fix it", create a Git branch with the name prefixed by the JIRA issue key (proj-123-fix-it), assign the issue to yourself, and start progress on it.
+
+```bash
+gira mr
+```
+Will create a merge request for the current branch, targeting the master branch, and update the JIRA issue status to "In Review".
+
+```bash
+gira status Done
+```
+Will change the status of the JIRA issue to "Done". If no issue key is provided, it will attempt to derive it from the current Git branch name.
 
 ## Environment Variables
 
