@@ -11,12 +11,14 @@ export async function createMergeRequest(
   sourceBranch: string,
   targetBranch: string,
   title: string,
+  labels?: string,
 ) {
   const payload = {
     source_branch: sourceBranch,
     target_branch: targetBranch,
     title,
     assignee_id: USER_ID,
+    ...(labels ? { labels } : {}),
   };
 
   const response = await fetch(`${API_URL}/merge_requests`, {

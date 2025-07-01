@@ -1,5 +1,5 @@
 import { requireEnv } from "../utils/utils.ts";
-import { CreateIssuePayload, IssueStatus } from "./jira.types.ts";
+import type { CreateIssuePayload, IssueStatus } from "./jira.types.ts";
 
 const API_TOKEN = requireEnv("JIRA_API_TOKEN");
 const USER_EMAIL = requireEnv("JIRA_USER_EMAIL");

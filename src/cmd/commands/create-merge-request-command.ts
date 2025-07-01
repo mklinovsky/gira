@@ -8,7 +8,13 @@ import {
 } from "../../utils/jira-from-branch-name.ts";
 import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
 
-export async function createMergeRequestCommand() {
+export async function createMergeRequestCommand({
+  labels,
+  draft,
+}: {
+  labels?: string;
+  draft?: boolean;
+}) {
   const targetBranch = "master";
   const sourceBranch = await getCurrentBranch();
 
@@ -17,16 +23,21 @@ export async function createMergeRequestCommand() {
   }
 
   const jiraKey = jiraKeyFromBranchName(sourceBranch);
-  const title = `${jiraKey} ${jiraSummaryFromBranchName(sourceBranch)}`;
+  let title = `${jiraKey} ${jiraSummaryFromBranchName(sourceBranch)}`;
 
   if (!title) {
     throw new Error("No title found.");
+  }
+
+  if (draft) {
+    title = `Draft: ${title}`;
   }
 
   const url = await GitlabApi.createMergeRequest(
     sourceBranch,
     targetBranch,
     title,
+    labels,
   );
 
   await $`echo ${url} | pbcopy`;

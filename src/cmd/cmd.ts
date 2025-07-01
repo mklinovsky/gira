@@ -30,8 +30,16 @@ export async function createCmd() {
       changeIssueStatusCommand({ issue: options.issue, status: args[0] });
     })
     .command("mr", "Create a merge request")
-    .action(() => {
-      createMergeRequestCommand();
+    .option(
+      "-l, --labels <labels:string>",
+      "Comma-separated labels for the merge request",
+    )
+    .option("-d --draft", "Create a draft merge request")
+    .action((options) => {
+      createMergeRequestCommand({
+        labels: options.labels,
+        draft: options.draft,
+      });
     })
     .parse(Deno.args);
 }
