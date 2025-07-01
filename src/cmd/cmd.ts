@@ -6,7 +6,7 @@ import { createMergeRequestCommand } from "./commands/create-merge-request-comma
 export async function createCmd() {
   await new Command()
     .name("gira")
-    .version("0.0.1")
+    .version("0.1.1")
     .description("CLI tool for managing Gitlab and JIRA")
     .command("create", "Create a new JIRA issue")
     .arguments("<summary:string>")

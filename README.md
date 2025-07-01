@@ -73,8 +73,13 @@ Create a merge request for the current branch targeting the master branch. It
 also updates the JIRA issue status to "In Review".
 
 ```bash
-gira mr
+gira mr [options]
 ```
+
+**Options:**
+
+- `-l, --labels <labels>`: Comma-separated labels for the merge request.
+- `-d, --draft`: Create a draft merge request.
 
 ### Usual Workflow
 
