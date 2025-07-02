@@ -4,7 +4,10 @@
   "exports": "./src/main.ts",
   "tasks": {
     "dev": "deno run -A src/main.ts",
-    "check": "deno fmt && deno lint && deno check src/main.ts && deno test"
+    "lint": "deno lint",
+    "check": "deno check src/main.ts",
+    "test": "deno test",
+    "pre-commit": "deno fmt && deno lint && deno check src/main.ts && deno test"
   },
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.7",
