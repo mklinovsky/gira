@@ -11,11 +11,12 @@ import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
 export async function createMergeRequestCommand({
   labels,
   draft,
+  targetBranch = "master",
 }: {
   labels?: string;
   draft?: boolean;
+  targetBranch?: string;
 }) {
-  const targetBranch = "master";
   const sourceBranch = await getCurrentBranch();
 
   if (!sourceBranch) {

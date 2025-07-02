@@ -78,6 +78,8 @@ gira mr [options]
 
 **Options:**
 
+- `-t, --target <target>`: Specify the target branch for the merge request
+  (default: master).
 - `-l, --labels <labels>`: Comma-separated labels for the merge request.
 - `-d, --draft`: Create a draft merge request.
 

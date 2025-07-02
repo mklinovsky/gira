@@ -1,10 +1,10 @@
 {
   "name": "@mklinovsky/gira",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "exports": "./src/main.ts",
   "tasks": {
     "dev": "deno run -A src/main.ts",
-    "check": "deno fmt && deno lint && deno check src/main.ts"
+    "check": "deno fmt && deno lint && deno check src/main.ts && deno test"
   },
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.7",

@@ -14,4 +14,9 @@ Deno.test("branch-name-from-jira", () => {
     ),
     "JIRA-123-this-is-a-test-summry-with-specil-chars",
   );
+
+  assertEquals(
+    createBranchName("JIRA-123", "Summary with-dash"),
+    "JIRA-123-summary-with-dash",
+  );
 });
