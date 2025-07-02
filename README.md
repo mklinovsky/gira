@@ -1,5 +1,7 @@
 # Gira CLI
 
+[![JSR](https://jsr.io/badges/@mklinovsky/gira)](https://jsr.io/@mklinovsky/gira)
+
 Gira is a command-line tool designed to streamline the management of GitLab and
 JIRA tasks. It allows you to create JIRA issues, change their status, and create
 merge requests with ease.
