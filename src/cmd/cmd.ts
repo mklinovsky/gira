@@ -2,11 +2,12 @@ import { Command } from "@cliffy/command";
 import { createJiraIssueCommand } from "./commands/create-jira-issue.ts";
 import { changeIssueStatusCommand } from "./commands/change-issue-status-command.ts";
 import { createMergeRequestCommand } from "./commands/create-merge-request-command.ts";
+import { getVersion } from "../utils/get-version.ts";
 
 export async function createCmd() {
   await new Command()
     .name("gira")
-    .version("0.2.0)")
+    .version(getVersion())
     .description("CLI tool for managing Gitlab and JIRA")
     .command("create", "Create a new JIRA issue")
     .arguments("<summary:string>")
