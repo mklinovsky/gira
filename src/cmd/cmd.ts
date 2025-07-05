@@ -5,10 +5,12 @@ import { createMergeRequestCommand } from "./commands/create-merge-request-comma
 import { getVersion } from "../utils/get-version.ts";
 
 export async function createCmd() {
-  await new Command()
+  const program = new Command()
     .name("gira")
     .version(getVersion())
-    .description("CLI tool for managing Gitlab and JIRA")
+    .description("CLI tool for managing Gitlab and JIRA");
+
+  program
     .command("create", "Create a new JIRA issue")
     .arguments("<summary:string>")
     .option("-p, --parent <parent:string>", "Parent issue key")
@@ -21,7 +23,9 @@ export async function createCmd() {
     .action(
       async (options, ...args) =>
         await createJiraIssueCommand({ options, summary: args[0] }),
-    )
+    );
+
+  program
     .command("status", "Change the status of a JIRA issue")
     .arguments("<status:string>")
     .option(
@@ -30,7 +34,9 @@ export async function createCmd() {
     )
     .action(async (options, ...args) => {
       await changeIssueStatusCommand({ issue: options.issue, status: args[0] });
-    })
+    });
+
+  program
     .command("mr", "Create a merge request")
     .option("-t, --target <target:string>", "Target branch")
     .option(
@@ -43,6 +49,7 @@ export async function createCmd() {
         labels: options.labels,
         draft: options.draft,
       });
-    })
-    .parse(Deno.args);
+    });
+
+  await program.parse(Deno.args);
 }
