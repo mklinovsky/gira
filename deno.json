@@ -10,8 +10,8 @@
     "pre-commit": "deno fmt && deno lint && deno check src/main.ts && deno test"
   },
   "imports": {
-    "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.7",
-    "@std/assert": "jsr:@std/assert@^1.0.12",
-    "zx": "npm:zx@^8.5.0"
+    "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.8",
+    "@std/assert": "jsr:@std/assert@^1.0.13",
+    "zx": "npm:zx@^8.6.1"
   }
 }
