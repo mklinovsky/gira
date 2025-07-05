@@ -8,32 +8,57 @@ merge requests with ease.
 
 ## Installation
 
-To use Gira, ensure you have [Deno](https://deno.com/) installed on your system.
+### Using install script
 
-Then, install Gira using the `deno install` command:
+You can install `gira` by running one of the following commands in your
+terminal. The script will download and install the correct binary for your
+system into `~/.gira/bin`.
+
+**With `curl`:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mklinovsky/gira/main/scripts/install.sh | sh
+```
+
+**With `wget`:**
+
+```bash
+wget -qO- https://raw.githubusercontent.com/mklinovsky/gira/main/scripts/install.sh | sh
+```
+
+The script will also attempt to add the installation directory to your shell's
+`PATH`. If it cannot, it will provide instructions on how to do so manually.
+
+### With Deno
+
+Ensure you have [Deno](https://deno.com/) installed on your system.
+
+Then, install Gira using the `deno install` command, specifying permissions
+individually for more fine-grained control:
+
+```bash
+deno install -g --allow-env --allow-sys --allow-read --allow-net --allow-run -n gira jsr:@mklinovsky/gira
+```
+
+- `-g`: Installs the executable globally.
+- `--allow-net`: Allows network access for API calls to Jira and GitLab.
+- `--allow-env`: Allows access to environment variables for API tokens and URLs.
+- `--allow-sys`: Allows access to system information.
+- `--allow-read`: Allows reading files.
+- `--allow-run`: Allows running subprocesses (e.g., `pbcopy` for copying to
+  clipboard).
+- `-n gira`: Specifies the executable name as `gira`.
+
+Alternatively, you can grant all permissions (less recommended for security
+reasons):
 
 ```bash
 deno install -g -A -n gira jsr:@mklinovsky/gira
 ```
 
-- `-g`: Installs the executable globally.
 - `-A`: Grants all permissions (network, environment variables, etc.) required
   by the CLI. This is a convenient alternative to specifying individual
   permissions.
-- `-n gira`: Specifies the name of the executable as `gira`.
-
-Alternatively, you can specify permissions individually for more fine-grained
-control:
-
-```bash
-deno install -g --allow-net --allow-env --allow-run -n gira jsr:@mklinovsky/gira
-```
-
-- `--allow-net`: Allows network access for API calls to Jira and GitLab.
-- `--allow-env`: Allows access to environment variables for API tokens and URLs.
-- `--allow-run`: Allows running subprocesses (e.g., `pbcopy` for copying to
-  clipboard).
-- `-n gira`: Specifies the executable name as `gira`.
 
 ## Usage
 
