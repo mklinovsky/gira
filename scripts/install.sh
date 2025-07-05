@@ -28,7 +28,7 @@ print_message() {
 check_version() {
     local version_to_check=$1
     if command -v $APP >/dev/null 2>&1; then
-        installed_version=$($APP version 2>/dev/null || echo "0.0.0")
+        installed_version=$($APP --version 2>/dev/null || echo "0.0.0")
         installed_version=${installed_version//v/} # remove potential 'v' prefix
 
         if [[ "$installed_version" != "$version_to_check" ]]; then

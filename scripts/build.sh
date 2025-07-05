@@ -6,6 +6,7 @@ version=$(jq -r '.version' ./deno.json)
 
 rm -rf ./dist
 mkdir -p ./dist
+cd ./dist
 
 targets=(
   "x86_64-unknown-linux-gnu"
@@ -16,9 +17,9 @@ targets=(
 
 for target in "${targets[@]}"; do
   echo "Compiling for $target..."
-  binary_file="dist/gira-$version-$target"
+  binary_file="gira-$version-$target"
 
-  deno compile --allow-env --allow-sys --allow-read --allow-net --output "$binary_file" --target "$target" src/main.ts
+  deno compile --allow-env --allow-sys --allow-read --allow-net --output "$binary_file" --target "$target" ../src/main.ts
 
   echo "Creating tarball for $target..."
   tar -czvf "$binary_file.tar.gz" "$binary_file"
