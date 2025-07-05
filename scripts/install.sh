@@ -28,7 +28,7 @@ print_message() {
 check_version() {
     local version_to_check=$1
     if command -v $APP >/dev/null 2>&1; then
-        installed_version=$($APP version 2>/dev/null || echo "0.0.0")
+        installed_version=$($APP --version 2>/dev/null || echo "0.0.0")
         installed_version=${installed_version//v/} # remove potential 'v' prefix
 
         if [[ "$installed_version" != "$version_to_check" ]]; then
@@ -92,7 +92,7 @@ download_and_install() {
 
     tar -xzf "$tmpdir/$filename" -C "$tmpdir"
     
-    local binary_in_archive="dist/$APP-$version-$target"
+    local binary_in_archive="$APP-$version-$target"
     if [ -f "$tmpdir/$binary_in_archive" ]; then
         mv "$tmpdir/$binary_in_archive" "$INSTALL_DIR/$APP"
     else

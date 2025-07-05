@@ -10,20 +10,12 @@ merge requests with ease.
 
 ### Using install script
 
-You can install `gira` by running one of the following commands in your
-terminal. The script will download and install the correct binary for your
-system into `~/.gira/bin`.
-
-**With `curl`:**
+You can install `gira` by running the following command in your terminal. The
+script will download and install the correct binary for your system into
+`~/.gira/bin`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mklinovsky/gira/main/scripts/install.sh | sh
-```
-
-**With `wget`:**
-
-```bash
-wget -qO- https://raw.githubusercontent.com/mklinovsky/gira/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/mklinovsky/gira/main/scripts/install.sh | bash
 ```
 
 The script will also attempt to add the installation directory to your shell's
