@@ -1,5 +1,10 @@
+import { postJson } from "../utils/post-json.ts";
 import { requireEnv } from "../utils/utils.ts";
-import type { CreateIssuePayload, IssueStatus } from "./jira.types.ts";
+import type {
+  CreateIssuePayload,
+  IssueStatus,
+  JiraResponse,
+} from "./jira.types.ts";
 
 const API_TOKEN = requireEnv("JIRA_API_TOKEN");
 const USER_EMAIL = requireEnv("JIRA_USER_EMAIL");
@@ -8,6 +13,7 @@ const BASE_URL = requireEnv("JIRA_URL");
 const PROJECT_KEY = requireEnv("JIRA_PROJECT_KEY");
 
 const API_URL = `${BASE_URL}/rest/api/3`;
+const ERROR_PREFIX = "JIRA API";
 
 export async function createIssue(
   summary: string,
@@ -25,10 +31,16 @@ export async function createIssue(
     },
   };
 
-  const { key } = await postJson<CreateIssuePayload, { key: string }>(
+  const data = await postJson<JiraResponse<{ key: string }>>(
     `${API_URL}/issue`,
-    payload,
+    getRequestOptions(payload),
+    ERROR_PREFIX,
   );
+
+  if (data.errorMessages?.length || data.errors) {
+    throw new Error(`${data.errorMessages} ${data.errors}`);
+  }
+  const { key } = data;
 
   return {
     key,
@@ -43,7 +55,17 @@ export async function changeIssueStatus(
   const payload = { transition: { id: statusId } };
 
   const url = `${API_URL}/issue/${issueKey}/transitions`;
-  await postJson<typeof payload>(url, payload);
+  const data = await postJson<JiraResponse>(
+    url,
+    getRequestOptions(payload),
+    ERROR_PREFIX,
+  );
+
+  if (data.errorMessages?.length || data.errors) {
+    throw new Error(`${data.errorMessages} ${data.errors}`);
+  }
+
+  return data;
 }
 
 function getHeaders(): HeadersInit {
@@ -60,32 +82,4 @@ function getRequestOptions<Payload>(payload: Payload): RequestInit {
     headers: getHeaders(),
     body: JSON.stringify(payload),
   };
-}
-
-async function postJson<Payload, Response = unknown>(
-  url: string,
-  payload: Payload,
-): Promise<Response> {
-  try {
-    const response = await fetch(url, getRequestOptions(payload));
-
-    if (!response.ok) {
-      throw new Error(`${response.status} ${response.statusText}`);
-    }
-
-    if (response.status === 204) {
-      return {} as Response;
-    }
-
-    const data = await response.json();
-
-    if (data.errorMessages?.length || data.errors) {
-      throw new Error(`${data.errorMessages} ${data.errors}`);
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Request failed:", error);
-    throw error;
-  }
 }

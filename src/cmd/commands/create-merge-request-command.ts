@@ -1,5 +1,6 @@
 import * as GitlabApi from "../../gitlab/gitlab-api.ts";
 import * as JiraApi from "../../jira/jira-api.ts";
+import * as Logger from "../../utils/logger.ts";
 import { $ } from "zx";
 import { getCurrentBranch } from "../../gitlab/git-branch.ts";
 import {
@@ -42,13 +43,11 @@ export async function createMergeRequestCommand({
   );
 
   await $`echo ${url} | pbcopy`;
-  console.log("✅ MR created, link copied to clipboard");
-  console.log(url);
-
+  Logger.success(`MR created, link copied to clipboard: ${url}`);
   await JiraApi.changeIssueStatus(jiraKey ?? "", IssueStatus.InReview);
 
-  console.log(
-    `✅ Changed status of issue ${jiraKey} to ${
+  Logger.success(
+    `Changed status of issue ${jiraKey} to ${
       IssueStatusById[IssueStatus.InReview]
     }`,
   );

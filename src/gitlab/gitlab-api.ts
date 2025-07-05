@@ -1,4 +1,5 @@
 import { requireEnv } from "../utils/utils.ts";
+import { postJson } from "../utils/post-json.ts";
 
 const API_TOKEN = requireEnv("GITLAB_API_TOKEN");
 const URL = requireEnv("GITLAB_URL");
@@ -21,17 +22,17 @@ export async function createMergeRequest(
     ...(labels ? { labels } : {}),
   };
 
-  const response = await fetch(`${API_URL}/merge_requests`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(payload),
-  });
+  const url = `${API_URL}/merge_requests`;
+  const data = await postJson<{ web_url: string }>(
+    url,
+    {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(payload),
+    },
+    "GitLab API",
+  );
 
-  if (!response.ok) {
-    throw new Error(`Failed to create merge request: ${response.statusText}`);
-  }
-
-  const data = await response.json();
   return data.web_url;
 }
 

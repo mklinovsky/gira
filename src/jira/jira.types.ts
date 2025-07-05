@@ -13,6 +13,7 @@ export type CreateIssuePayload = {
   };
 };
 
+// TODO: make this configurable
 export const IssueStatus = {
   InProgress: "141",
   InReview: "101",
@@ -24,3 +25,8 @@ export type IssueStatus = (typeof IssueStatus)[keyof typeof IssueStatus];
 export const IssueStatusById = Object.fromEntries(
   Object.entries(IssueStatus).map(([key, value]) => [value, key]),
 ) as Record<IssueStatus, string>;
+
+export type JiraResponse<T = unknown> = T & {
+  errorMessages?: unknown[];
+  errors?: unknown[];
+};

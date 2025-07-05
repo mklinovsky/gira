@@ -1,14 +1,20 @@
 import { $ } from "zx";
+import * as Logger from "../utils/logger.ts";
 
 export async function createBranch(branchName: string) {
   const currentBranch = await getCurrentBranch();
 
   if (currentBranch === branchName) {
-    console.log(`Already on branch ${branchName}`);
+    Logger.info(`Already on branch ${branchName}`);
     return;
   }
 
-  await $`git checkout -b ${branchName}`;
+  try {
+    await $`git checkout -b ${branchName}`.quiet();
+    Logger.info(`Switched to new branch: ${branchName}`);
+  } catch (error) {
+    Logger.error(error);
+  }
 }
 
 export async function getCurrentBranch() {

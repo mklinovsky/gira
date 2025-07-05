@@ -1,5 +1,6 @@
 import * as JiraApi from "../../jira/jira-api.ts";
 import * as Git from "../../gitlab/git-branch.ts";
+import * as Logger from "../../utils/logger.ts";
 import { createBranchName } from "../../utils/branch-name-from-jira.ts";
 import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
 
@@ -30,7 +31,7 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     assignToMe,
   );
 
-  console.log(`✅ Issue created: ${createdIssue.url}`);
+  Logger.success(`Issue created: ${createdIssue.url}`);
 
   if (!createBranch) {
     return;
@@ -48,8 +49,8 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     IssueStatus.InProgress,
   );
 
-  console.log(
-    `✅ Changed status of issue ${createdIssue.key} to ${
+  Logger.success(
+    `Changed status of issue ${createdIssue.key} to ${
       IssueStatusById[IssueStatus.InProgress]
     }`,
   );
