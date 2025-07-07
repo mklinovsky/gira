@@ -19,4 +19,9 @@ Deno.test("branch-name-from-jira", () => {
     createBranchName("JIRA-123", "Summary with-dash"),
     "JIRA-123-summary-with-dash",
   );
+
+  assertEquals(
+    createBranchName("JIRA-123", "Summary with_underscore"),
+    "JIRA-123-summary-with-underscore",
+  );
 });
