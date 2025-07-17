@@ -48,6 +48,7 @@ export async function createCmd() {
       await createMergeRequestCommand({
         labels: options.labels,
         draft: options.draft,
+        targetBranch: options.target,
       });
     });
 
