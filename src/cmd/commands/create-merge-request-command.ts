@@ -1,13 +1,13 @@
 import * as GitlabApi from "../../gitlab/gitlab-api.ts";
 import * as JiraApi from "../../jira/jira-api.ts";
 import * as Logger from "../../utils/logger.ts";
-import { $ } from "zx";
 import { getCurrentBranch } from "../../gitlab/git-branch.ts";
 import {
   jiraKeyFromBranchName,
   jiraSummaryFromBranchName,
 } from "../../utils/jira-from-branch-name.ts";
 import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
+import { copyToClipboard } from "../../utils/clipboard.ts";
 
 export async function createMergeRequestCommand({
   labels,
@@ -42,8 +42,13 @@ export async function createMergeRequestCommand({
     labels,
   );
 
-  await $`echo ${url} | pbcopy`;
-  Logger.success(`MR created, link copied to clipboard: ${url}`);
+  const clipboardSuccess = await copyToClipboard(url);
+  if (clipboardSuccess) {
+    Logger.success(`MR created, link copied to clipboard: ${url}`);
+  } else {
+    Logger.success(`MR created: ${url}`);
+    Logger.info("Could not copy link to clipboard");
+  }
   await JiraApi.changeIssueStatus(jiraKey ?? "", IssueStatus.InReview);
 
   Logger.success(
