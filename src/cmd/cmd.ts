@@ -3,6 +3,8 @@ import { createJiraIssueCommand } from "./commands/create-jira-issue.ts";
 import { changeIssueStatusCommand } from "./commands/change-issue-status-command.ts";
 import { createMergeRequestCommand } from "./commands/create-merge-request-command.ts";
 import { getVersion } from "../utils/get-version.ts";
+import { getMrCommand } from "./commands/get-mr-command.ts";
+import { mergeCommand } from "./commands/merge-command.ts";
 
 export async function createCmd() {
   const program = new Command()
@@ -49,6 +51,26 @@ export async function createCmd() {
         labels: options.labels,
         draft: options.draft,
         targetBranch: options.target,
+      });
+    });
+
+  program
+    .command("get-mr", "Get details of a merge request")
+    .arguments("<mergeRequestId:string>")
+    .action(async (_options, ...args) => {
+      await getMrCommand({ mergeRequestId: args[0] });
+    });
+
+  program
+    .command("merge", "Merge the current merge request")
+    .arguments("<mergeRequestId:string>")
+    .option("-c --close", "Close the JIRA issue after merging")
+    .option("-d --delete", "Delete the source branch after merging")
+    .action(async (options, ...args) => {
+      await mergeCommand({
+        mergeRequestId: args[0],
+        closeJira: options.close,
+        deleteBranch: options.delete,
       });
     });
 

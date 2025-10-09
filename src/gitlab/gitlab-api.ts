@@ -36,6 +36,36 @@ export async function createMergeRequest(
   return data.web_url;
 }
 
+export function getMergeRequest(mrId: string): Promise<{ title: string }> {
+  const url = `${API_URL}/merge_requests/${mrId}`;
+
+  return postJson(
+    url,
+    {
+      method: "GET",
+      headers: getHeaders(),
+    },
+    "GitLab API",
+  );
+}
+
+export function mergeMergeRequest(mrId: string, deleteSourceBranch = false) {
+  const url = `${API_URL}/merge_requests/${mrId}/merge`;
+  const payload = {
+    should_remove_source_branch: deleteSourceBranch,
+  };
+
+  return postJson(
+    url,
+    {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(payload),
+    },
+    "GitLab API",
+  );
+}
+
 function getHeaders() {
   return {
     "PRIVATE-TOKEN": API_TOKEN,
