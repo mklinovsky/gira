@@ -68,6 +68,68 @@ export async function changeIssueStatus(
   return data;
 }
 
+export async function getIssue(issueKey: string) {
+  const url = `${API_URL}/issue/${issueKey}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch issue: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.errorMessages?.length || data.errors) {
+      throw new Error(`${data.errorMessages} ${data.errors}`);
+    }
+
+    return data;
+  } catch (error) {
+    throw new Error(`${ERROR_PREFIX}: ${error}`);
+  }
+}
+
+export async function getIssueAttachments(issueKey: string) {
+  const issue = await getIssue(issueKey);
+  const attachments = issue?.fields?.attachment || [];
+
+  return attachments.map((att: any) => ({
+    id: att.id,
+    filename: att.filename,
+    size: att.size,
+    mimeType: att.mimeType,
+    content: att.content,
+    created: att.created,
+  }));
+}
+
+export async function downloadAttachment(
+  contentUrl: string,
+  outputPath: string,
+) {
+  try {
+    const response = await fetch(contentUrl, {
+      method: "GET",
+      headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to download attachment: ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    await Deno.writeFile(outputPath, new Uint8Array(arrayBuffer));
+
+    return true;
+  } catch (error) {
+    throw new Error(`${ERROR_PREFIX}: ${error}`);
+  }
+}
+
 function getHeaders(): HeadersInit {
   return {
     Authorization: `Basic ${btoa(`${USER_EMAIL}:${API_TOKEN}`)}`,

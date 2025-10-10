@@ -4,6 +4,8 @@ import { changeIssueStatusCommand } from "./commands/change-issue-status-command
 import { createMergeRequestCommand } from "./commands/create-merge-request-command.ts";
 import { getVersion } from "../utils/get-version.ts";
 import { getMrCommand } from "./commands/get-mr-command.ts";
+import { getJiraCommand } from "./commands/get-jira-command.ts";
+import { getJiraFilesCommand } from "./commands/get-jira-files-command.ts";
 import { mergeCommand } from "./commands/merge-command.ts";
 
 export async function createCmd() {
@@ -59,6 +61,24 @@ export async function createCmd() {
     .arguments("<mergeRequestId:string>")
     .action(async (_options, ...args) => {
       await getMrCommand({ mergeRequestId: args[0] });
+    });
+
+  program
+    .command("get-jira", "Get details of a Jira issue")
+    .arguments("<issueKey:string>")
+    .action(async (_options, ...args) => {
+      await getJiraCommand({ issueKey: args[0] });
+    });
+
+  program
+    .command("get-jira-files", "Download attachments from a Jira issue")
+    .arguments("<issueKey:string>")
+    .option("-o, --output <output:string>", "Output directory for attachments")
+    .action(async (options, ...args) => {
+      await getJiraFilesCommand({
+        issueKey: args[0],
+        outputDir: options.output,
+      });
     });
 
   program

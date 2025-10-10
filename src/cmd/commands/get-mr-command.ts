@@ -9,8 +9,7 @@ export async function getMrCommand({
   const result = await GitlabApi.getMergeRequest(mergeRequestId);
 
   if (result) {
-    Logger.info(`Merge request ${mergeRequestId} details:`);
-    Logger.info(JSON.stringify(result, null, 2));
+    console.log(JSON.stringify(result, null, 2));
   } else {
     Logger.error(`Failed to get merge request ${mergeRequestId}.`);
     return;
