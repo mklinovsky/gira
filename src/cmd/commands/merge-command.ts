@@ -2,7 +2,6 @@ import * as GitlabApi from "../../gitlab/gitlab-api.ts";
 import * as JiraApi from "../../jira/jira-api.ts";
 import * as Logger from "../../utils/logger.ts";
 import { jiraKeyFromBranchName } from "../../utils/jira-from-branch-name.ts";
-import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
 
 export async function mergeCommand({
   mergeRequestId,
@@ -25,11 +24,8 @@ export async function mergeCommand({
 
   const jiraKey = jiraKeyFromBranchName(mrDetails.title);
   if (jiraKey && closeJira) {
-    await JiraApi.changeIssueStatus(jiraKey, IssueStatus.Done);
-    Logger.success(
-      `Changed status of issue ${jiraKey} to ${
-        IssueStatusById[IssueStatus.Done]
-      }`,
-    );
+    const statusName = "Done";
+    await JiraApi.changeIssueStatus(jiraKey, statusName);
+    Logger.success(`Changed status of issue ${jiraKey} to ${statusName}`);
   }
 }

@@ -6,7 +6,6 @@ import {
   jiraKeyFromBranchName,
   jiraSummaryFromBranchName,
 } from "../../utils/jira-from-branch-name.ts";
-import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
 import { copyToClipboard } from "../../utils/clipboard.ts";
 
 export async function createMergeRequestCommand({
@@ -49,11 +48,9 @@ export async function createMergeRequestCommand({
     Logger.success(`MR created: ${url}`);
     Logger.info("Could not copy link to clipboard");
   }
-  await JiraApi.changeIssueStatus(jiraKey ?? "", IssueStatus.InReview);
 
-  Logger.success(
-    `Changed status of issue ${jiraKey} to ${
-      IssueStatusById[IssueStatus.InReview]
-    }`,
-  );
+  const statusName = "In Review";
+  await JiraApi.changeIssueStatus(jiraKey ?? "", statusName);
+
+  Logger.success(`Changed status of issue ${jiraKey} to ${statusName}`);
 }

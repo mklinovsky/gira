@@ -2,13 +2,13 @@ import * as JiraApi from "../../jira/jira-api.ts";
 import * as Git from "../../gitlab/git-branch.ts";
 import * as Logger from "../../utils/logger.ts";
 import { createBranchName } from "../../utils/branch-name-from-jira.ts";
-import { IssueStatus, IssueStatusById } from "../../jira/jira.types.ts";
 
 type CreateJiraIssueCommand = {
   summary: string;
   options: {
     parent?: string;
     type?: string;
+    key?: string;
     assign?: boolean;
     branch?: boolean;
     start?: boolean;
@@ -19,6 +19,7 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
   const {
     parent,
     type,
+    key,
     assign: assignToMe,
     branch: createBranch,
     start: startProgress,
@@ -29,6 +30,7 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     type,
     parent,
     assignToMe,
+    key,
   );
 
   Logger.success(`Issue created: ${createdIssue.url}`);
@@ -44,14 +46,13 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     return;
   }
 
+  const statusName = "In Progress";
   await JiraApi.changeIssueStatus(
     createdIssue.key ?? "",
-    IssueStatus.InProgress,
+    statusName,
   );
 
   Logger.success(
-    `Changed status of issue ${createdIssue.key} to ${
-      IssueStatusById[IssueStatus.InProgress]
-    }`,
+    `Changed status of issue ${createdIssue.key} to ${statusName}`,
   );
 }

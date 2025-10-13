@@ -1,10 +1,6 @@
 import { postJson } from "../utils/post-json.ts";
 import { requireEnv } from "../utils/utils.ts";
-import type {
-  CreateIssuePayload,
-  IssueStatus,
-  JiraResponse,
-} from "./jira.types.ts";
+import type { CreateIssuePayload, JiraResponse } from "./jira.types.ts";
 
 const API_TOKEN = requireEnv("JIRA_API_TOKEN");
 const USER_EMAIL = requireEnv("JIRA_USER_EMAIL");
@@ -20,10 +16,11 @@ export async function createIssue(
   issueType = "Task",
   parentIssueKey?: string,
   assignToMe?: boolean,
+  projectKey?: string,
 ): Promise<{ key: string; url: string }> {
   const payload: CreateIssuePayload = {
     fields: {
-      project: { key: PROJECT_KEY },
+      project: { key: projectKey || PROJECT_KEY },
       summary,
       issuetype: { name: issueType },
       ...(assignToMe ? { assignee: { id: USER_ID } } : {}),
@@ -50,9 +47,10 @@ export async function createIssue(
 
 export async function changeIssueStatus(
   issueKey: string,
-  statusId: IssueStatus,
+  statusName: string,
 ) {
-  const payload = { transition: { id: statusId } };
+  const transitionId = await findTransitionIdByName(issueKey, statusName);
+  const payload = { transition: { id: transitionId } };
 
   const url = `${API_URL}/issue/${issueKey}/transitions`;
   const data = await postJson<JiraResponse>(
@@ -91,6 +89,53 @@ export async function getIssue(issueKey: string) {
   } catch (error) {
     throw new Error(`${ERROR_PREFIX}: ${error}`);
   }
+}
+
+export async function getIssueTransitions(issueKey: string): Promise<
+  Array<{ id: string; name: string }>
+> {
+  const url = `${API_URL}/issue/${issueKey}/transitions`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch transitions: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.errorMessages?.length || data.errors) {
+      throw new Error(`${data.errorMessages} ${data.errors}`);
+    }
+
+    return data.transitions || [];
+  } catch (error) {
+    throw new Error(`${ERROR_PREFIX}: ${error}`);
+  }
+}
+
+async function findTransitionIdByName(
+  issueKey: string,
+  statusName: string,
+): Promise<string> {
+  const transitions = await getIssueTransitions(issueKey);
+
+  const transition = transitions.find(
+    (t) => t.name.toLowerCase() === statusName.toLowerCase(),
+  );
+
+  if (!transition) {
+    const availableStatuses = transitions.map((t) => t.name).join(", ");
+    throw new Error(
+      `Status "${statusName}" not found. Available statuses: ${availableStatuses}`,
+    );
+  }
+
+  return transition.id;
 }
 
 export async function getIssueAttachments(issueKey: string) {

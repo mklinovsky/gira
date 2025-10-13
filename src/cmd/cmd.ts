@@ -21,6 +21,10 @@ export async function createCmd() {
     .option("-t, --type <type:string>", "Issue type", {
       default: "Task",
     })
+    .option(
+      "-k, --key <key:string>",
+      "Project key (overrides JIRA_PROJECT_KEY env variable)",
+    )
     .option("-b --branch", "Create git branch")
     .option("-a --assign", "Assign to me")
     .option("-s --start", "Start progress")

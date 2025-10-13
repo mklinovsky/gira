@@ -2,7 +2,6 @@ import * as JiraApi from "../../jira/jira-api.ts";
 import * as Git from "../../gitlab/git-branch.ts";
 import * as Logger from "../../utils/logger.ts";
 import { jiraKeyFromBranchName } from "../../utils/jira-from-branch-name.ts";
-import { IssueStatus } from "../../jira/jira.types.ts";
 
 export async function changeIssueStatusCommand({
   issue,
@@ -25,10 +24,7 @@ export async function changeIssueStatusCommand({
     throw new Error("No issue key found.");
   }
 
-  await JiraApi.changeIssueStatus(
-    issueKey,
-    IssueStatus[status as keyof typeof IssueStatus],
-  );
+  await JiraApi.changeIssueStatus(issueKey, status);
 
   Logger.success(`Changed status of issue ${issueKey} to ${status}`);
 }
