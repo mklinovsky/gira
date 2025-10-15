@@ -2,6 +2,7 @@ import * as JiraApi from "../../jira/jira-api.ts";
 import * as Git from "../../gitlab/git-branch.ts";
 import * as Logger from "../../utils/logger.ts";
 import { createBranchName } from "../../utils/branch-name-from-jira.ts";
+import { parseCustomField } from "../../utils/parse-custom-field.ts";
 
 type CreateJiraIssueCommand = {
   summary: string;
@@ -12,6 +13,7 @@ type CreateJiraIssueCommand = {
     assign?: boolean;
     branch?: boolean;
     start?: boolean;
+    customField?: string;
   };
 };
 
@@ -23,7 +25,10 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     assign: assignToMe,
     branch: createBranch,
     start: startProgress,
+    customField,
   } = args.options;
+
+  const customFieldObject = parseCustomField(customField);
 
   const createdIssue = await JiraApi.createIssue(
     args.summary,
@@ -31,6 +36,7 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     parent,
     assignToMe,
     key,
+    customFieldObject,
   );
 
   Logger.success(`Issue created: ${createdIssue.url}`);

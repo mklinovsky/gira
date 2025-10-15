@@ -17,6 +17,7 @@ export async function createIssue(
   parentIssueKey?: string,
   assignToMe?: boolean,
   projectKey?: string,
+  customField?: Record<string, unknown>,
 ): Promise<{ key: string; url: string }> {
   const payload: CreateIssuePayload = {
     fields: {
@@ -25,6 +26,7 @@ export async function createIssue(
       issuetype: { name: issueType },
       ...(assignToMe ? { assignee: { id: USER_ID } } : {}),
       ...(parentIssueKey ? { parent: { key: parentIssueKey } } : {}),
+      ...(customField ? customField : {}),
     },
   };
 

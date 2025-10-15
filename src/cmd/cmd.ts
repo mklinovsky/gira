@@ -28,6 +28,10 @@ export async function createCmd() {
     .option("-b --branch", "Create git branch")
     .option("-a --assign", "Assign to me")
     .option("-s --start", "Start progress")
+    .option(
+      "--custom-field <customField:string>",
+      "Custom field in key=value format",
+    )
     .action(
       async (options, ...args) =>
         await createJiraIssueCommand({ options, summary: args[0] }),
