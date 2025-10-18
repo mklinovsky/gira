@@ -14,6 +14,15 @@ export type CreateIssuePayload = {
 };
 
 export type JiraResponse<T = unknown> = T & {
-  errorMessages?: unknown[];
-  errors?: unknown[];
+  errorMessages?: string[];
+  errors?: Record<string, string>;
+};
+
+export type JiraAttachment = {
+  id: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+  content: string;
+  created: string;
 };

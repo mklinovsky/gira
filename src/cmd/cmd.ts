@@ -1,5 +1,6 @@
 import { Command } from "@cliffy/command";
 import { createJiraIssueCommand } from "./commands/create-jira-issue.ts";
+import { updateJiraIssueCommand } from "./commands/update-jira-issue.ts";
 import { changeIssueStatusCommand } from "./commands/change-issue-status-command.ts";
 import { createMergeRequestCommand } from "./commands/create-merge-request-command.ts";
 import { getVersion } from "../utils/get-version.ts";
@@ -35,6 +36,18 @@ export async function createCmd() {
     .action(
       async (options, ...args) =>
         await createJiraIssueCommand({ options, summary: args[0] }),
+    );
+
+  program
+    .command("update", "Update a JIRA issue")
+    .arguments("<issueKey:string>")
+    .option(
+      "--custom-field <customField:string>",
+      "Custom field in key=value format",
+    )
+    .action(
+      async (options, ...args) =>
+        await updateJiraIssueCommand({ options, issueKey: args[0] }),
     );
 
   program

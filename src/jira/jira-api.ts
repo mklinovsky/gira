@@ -1,6 +1,10 @@
 import { postJson } from "../utils/post-json.ts";
 import { requireEnv } from "../utils/utils.ts";
-import type { CreateIssuePayload, JiraResponse } from "./jira.types.ts";
+import type {
+  CreateIssuePayload,
+  JiraAttachment,
+  JiraResponse,
+} from "./jira.types.ts";
 
 const API_TOKEN = requireEnv("JIRA_API_TOKEN");
 const USER_EMAIL = requireEnv("JIRA_USER_EMAIL");
@@ -45,6 +49,27 @@ export async function createIssue(
     key,
     url: `${BASE_URL}/browse/${key}`,
   };
+}
+
+export async function updateIssue(
+  issueKey: string,
+  customField: Record<string, unknown>,
+) {
+  const payload = {
+    fields: {
+      ...(customField ? customField : {}),
+    },
+  };
+
+  const data = await postJson<JiraResponse<void>>(
+    `${API_URL}/issue/${issueKey}`,
+    getRequestOptions(payload, "PUT"),
+    ERROR_PREFIX,
+  );
+
+  if (data.errorMessages?.length || data.errors) {
+    throw new Error(`${data.errorMessages} ${data.errors}`);
+  }
 }
 
 export async function changeIssueStatus(
@@ -144,7 +169,7 @@ export async function getIssueAttachments(issueKey: string) {
   const issue = await getIssue(issueKey);
   const attachments = issue?.fields?.attachment || [];
 
-  return attachments.map((att: any) => ({
+  return attachments.map((att: JiraAttachment) => ({
     id: att.id,
     filename: att.filename,
     size: att.size,
@@ -185,9 +210,12 @@ function getHeaders(): HeadersInit {
   };
 }
 
-function getRequestOptions<Payload>(payload: Payload): RequestInit {
+function getRequestOptions<Payload>(
+  payload: Payload,
+  method: "POST" | "PUT" = "POST",
+): RequestInit {
   return {
-    method: "POST",
+    method,
     headers: getHeaders(),
     body: JSON.stringify(payload),
   };
