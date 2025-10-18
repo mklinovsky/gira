@@ -73,6 +73,39 @@ gira create <summary> [options]
 - `-a, --assign`: Assign the issue to yourself.
 - `-s, --start`: Start progress on the issue.
 
+### Get a JIRA Issue
+
+Get a JIRA issue by its key.
+
+```bash
+gira get-jira <issue-key>
+```
+
+### Get JIRA Issue Attachments
+
+Download attachments from a JIRA issue.
+
+```bash
+gira get-jira-files <issue-key> [options]
+```
+
+**Options:**
+
+- `-o, --output-dir <output-dir>`: The directory to download the files to.
+
+### Update a JIRA Issue
+
+Update a JIRA issue with a custom field.
+
+```bash
+gira update-jira <issue-key> [options]
+```
+
+**Options:**
+
+- `-c, --custom-field <custom-field>`: A custom field to update, in the format
+  `key=value`.
+
 ### Change JIRA Issue Status
 
 Change the status of an existing JIRA issue. If no issue key is provided, it
@@ -101,6 +134,27 @@ gira mr [options]
   (default: master).
 - `-l, --labels <labels>`: Comma-separated labels for the merge request.
 - `-d, --draft`: Create a draft merge request.
+
+### Get a Merge Request
+
+Get a merge request by its ID.
+
+```bash
+gira get-mr <merge-request-id>
+```
+
+### Merge a Merge Request
+
+Merge a merge request by its ID.
+
+```bash
+gira merge <merge-request-id> [options]
+```
+
+**Options:**
+
+- `--close-jira`: Close the associated JIRA issue.
+- `--delete-branch`: Delete the branch after merging.
 
 ### Usual Workflow
 
