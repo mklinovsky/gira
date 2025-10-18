@@ -28,7 +28,7 @@ export async function createCmd() {
     )
     .option("-b --branch", "Create git branch")
     .option("-a --assign", "Assign to me")
-    .option("-s --start", "Start progress")
+    .option("-s, --start [status:string]", "Start progress")
     .option(
       "--custom-field <customField:string>",
       "Custom field in key=value format",
@@ -40,15 +40,15 @@ export async function createCmd() {
 
   program
     .command("update", "Update a JIRA issue")
-    .arguments("<issueKey:string>")
+    .option(
+      "-i, --issue <issue:string>",
+      "Issue key, if not provided, will parse key from current branch name",
+    )
     .option(
       "--custom-field <customField:string>",
       "Custom field in key=value format",
     )
-    .action(
-      async (options, ...args) =>
-        await updateJiraIssueCommand({ options, issueKey: args[0] }),
-    );
+    .action(updateJiraIssueCommand);
 
   program
     .command("status", "Change the status of a JIRA issue")

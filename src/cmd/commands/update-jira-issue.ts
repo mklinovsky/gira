@@ -1,16 +1,32 @@
 import * as JiraApi from "../../jira/jira-api.ts";
 import * as Logger from "../../utils/logger.ts";
 import { parseCustomField } from "../../utils/parse-custom-field.ts";
+import * as Git from "../../gitlab/git-branch.ts";
+import { jiraKeyFromBranchName } from "../../utils/jira-from-branch-name.ts";
 
 type UpdateJiraIssueCommand = {
-  issueKey: string;
-  options: {
-    customField?: string;
-  };
+  issue?: string;
+  customField?: string;
 };
 
-export async function updateJiraIssueCommand(args: UpdateJiraIssueCommand) {
-  const { customField } = args.options;
+export async function updateJiraIssueCommand({
+  issue,
+  customField,
+}: UpdateJiraIssueCommand) {
+  let issueKey = issue;
+
+  if (!issueKey) {
+    const currentBranch = await Git.getCurrentBranch();
+    if (!currentBranch) {
+      throw new Error("No current branch found.");
+    }
+
+    issueKey = jiraKeyFromBranchName(currentBranch) ?? "";
+  }
+
+  if (!issueKey) {
+    throw new Error("No issue key found.");
+  }
 
   if (!customField) {
     Logger.error("No custom field provided.");
@@ -25,9 +41,9 @@ export async function updateJiraIssueCommand(args: UpdateJiraIssueCommand) {
   }
 
   await JiraApi.updateIssue(
-    args.issueKey,
+    issueKey,
     customFieldObject,
   );
 
-  Logger.success(`Issue ${args.issueKey} updated.`);
+  Logger.success(`Issue ${issueKey} updated.`);
 }

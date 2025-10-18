@@ -12,7 +12,7 @@ type CreateJiraIssueCommand = {
     key?: string;
     assign?: boolean;
     branch?: boolean;
-    start?: boolean;
+    start?: boolean | string;
     customField?: string;
   };
 };
@@ -52,7 +52,9 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     return;
   }
 
-  const statusName = "In Progress";
+  const statusName = typeof startProgress === "string"
+    ? startProgress
+    : "In Progress";
   await JiraApi.changeIssueStatus(
     createdIssue.key ?? "",
     statusName,
