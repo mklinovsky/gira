@@ -70,6 +70,8 @@ gira create <summary> [options]
 - `-p, --parent <parent>`: Specify a parent issue key.
 - `-t, --type <type>`: Specify the issue type (default: Task).
 - `-b, --branch`: Create a corresponding Git branch.
+- `-w, --worktree <directory>`: Create a Git worktree in the specified base
+  directory (mutually exclusive with `-b`).
 - `-a, --assign`: Assign the issue to yourself.
 - `-s, --start`: Start progress on the issue.
 
@@ -165,6 +167,14 @@ gira create -b -a -s "Fix it"
 Will create a new JIRA issue with the summary "Fix it", create a Git branch with
 the name prefixed by the JIRA issue key (proj-123-fix-it), assign the issue to
 yourself, and start progress on it.
+
+```bash
+gira create -w ../worktrees -a -s "Fix it"
+```
+
+Will create a new JIRA issue with the summary "Fix it", create a Git worktree in
+`../worktrees/proj-123-fix-it`, assign the issue to yourself, and start progress
+on it.
 
 ```bash
 gira mr

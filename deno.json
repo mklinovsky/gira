@@ -1,6 +1,6 @@
 {
   "name": "@mklinovsky/gira",
-  "version": "0.2.8",
+  "version": "0.4.2",
   "exports": "./src/main.ts",
   "tasks": {
     "dev": "deno run -A src/main.ts",
