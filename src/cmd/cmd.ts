@@ -27,6 +27,10 @@ export async function createCmd() {
       "Project key (overrides JIRA_PROJECT_KEY env variable)",
     )
     .option("-b --branch", "Create git branch")
+    .option(
+      "-w, --worktree <worktree:string>",
+      "Create git worktree in specified base directory",
+    )
     .option("-a --assign", "Assign to me")
     .option("-s, --start [status:string]", "Start progress")
     .option(

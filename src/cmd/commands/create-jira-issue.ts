@@ -12,6 +12,7 @@ type CreateJiraIssueCommand = {
     key?: string;
     assign?: boolean;
     branch?: boolean;
+    worktree?: string;
     start?: boolean | string;
     customField?: string;
     description?: string;
@@ -25,10 +26,16 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     key,
     assign: assignToMe,
     branch: createBranch,
+    worktree: worktreeBaseDir,
     start: startProgress,
     customField,
     description,
   } = args.options;
+
+  if (createBranch && worktreeBaseDir) {
+    Logger.error("Cannot use both --branch and --worktree options");
+    Deno.exit(1);
+  }
 
   const customFieldObject = parseCustomField(customField);
 
@@ -44,12 +51,15 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
 
   Logger.success(`Issue created: ${createdIssue.url}`);
 
-  if (!createBranch) {
-    return;
-  }
+  if (createBranch || worktreeBaseDir) {
+    const branchName = createBranchName(createdIssue.key, args.summary);
 
-  const branchName = createBranchName(createdIssue.key, args.summary);
-  await Git.createBranch(branchName);
+    if (worktreeBaseDir) {
+      await Git.createWorktree(branchName, worktreeBaseDir);
+    } else {
+      await Git.createBranch(branchName);
+    }
+  }
 
   if (!startProgress) {
     return;
