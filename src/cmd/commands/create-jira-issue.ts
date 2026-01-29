@@ -14,6 +14,7 @@ type CreateJiraIssueCommand = {
     branch?: boolean;
     start?: boolean | string;
     customField?: string;
+    description?: string;
   };
 };
 
@@ -26,6 +27,7 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     branch: createBranch,
     start: startProgress,
     customField,
+    description,
   } = args.options;
 
   const customFieldObject = parseCustomField(customField);
@@ -37,6 +39,7 @@ export async function createJiraIssueCommand(args: CreateJiraIssueCommand) {
     assignToMe,
     key,
     customFieldObject,
+    description,
   );
 
   Logger.success(`Issue created: ${createdIssue.url}`);

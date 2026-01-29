@@ -33,6 +33,7 @@ export async function createCmd() {
       "--custom-field <customField:string>",
       "Custom field in key=value format",
     )
+    .option("-d, --description <description:string>", "Issue description")
     .action(
       async (options, ...args) =>
         await createJiraIssueCommand({ options, summary: args[0] }),
