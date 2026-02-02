@@ -19,6 +19,7 @@ export async function createMergeRequest(
     target_branch: targetBranch,
     title,
     assignee_id: USER_ID,
+    remove_source_branch: true,
     ...(labels ? { labels } : {}),
   };
 
