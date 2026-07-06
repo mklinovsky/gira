@@ -8,6 +8,7 @@ import { getMrCommand } from "./commands/get-mr-command.ts";
 import { getJiraCommand } from "./commands/get-jira-command.ts";
 import { getJiraFilesCommand } from "./commands/get-jira-files-command.ts";
 import { mergeCommand } from "./commands/merge-command.ts";
+import { initCommand } from "./commands/init-command.ts";
 
 export async function createCmd() {
   const program = new Command()
@@ -16,12 +17,17 @@ export async function createCmd() {
     .description("CLI tool for managing Gitlab and JIRA");
 
   program
+    .command("init", "Create default Gira config file")
+    .option("--force", "Overwrite existing config file")
+    .action(async (options) => {
+      await initCommand({ force: options.force });
+    });
+
+  program
     .command("create", "Create a new JIRA issue")
     .arguments("<summary:string>")
     .option("-p, --parent <parent:string>", "Parent issue key")
-    .option("-t, --type <type:string>", "Issue type", {
-      default: "Task",
-    })
+    .option("-t, --type <type:string>", "Issue type")
     .option(
       "-k, --key <key:string>",
       "Project key (overrides JIRA_PROJECT_KEY env variable)",
@@ -69,6 +75,7 @@ export async function createCmd() {
   program
     .command("mr", "Create a merge request")
     .option("-t, --target <target:string>", "Target branch")
+    .option("--title <title:string>", "Merge request title")
     .option(
       "-l, --labels <labels:string>",
       "Comma-separated labels for the merge request",
@@ -79,6 +86,7 @@ export async function createCmd() {
         labels: options.labels,
         draft: options.draft,
         targetBranch: options.target,
+        title: options.title,
       });
     });
 

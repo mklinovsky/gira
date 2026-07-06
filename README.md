@@ -6,6 +6,9 @@ Gira is a command-line tool designed to streamline the management of GitLab and
 JIRA tasks. It allows you to create JIRA issues, change their status, and create
 merge requests with ease.
 
+It can also load per-project settings from `~/.gira/config.json`, so one install
+can work across Jira and non-Jira repositories.
+
 ## Installation
 
 ### Using install script
@@ -68,7 +71,8 @@ gira create <summary> [options]
 **Options:**
 
 - `-p, --parent <parent>`: Specify a parent issue key.
-- `-t, --type <type>`: Specify the issue type (default: Task).
+- `-t, --type <type>`: Specify the issue type. If omitted, gira uses configured
+  defaults and parent hierarchy.
 - `-b, --branch`: Create a corresponding Git branch.
 - `-w, --worktree <directory>`: Create a Git worktree in the specified base
   directory (mutually exclusive with `-b`).
@@ -123,8 +127,11 @@ gira status <status> [options]
 
 ### Create a Merge Request
 
-Create a merge request for the current branch targeting the master branch. It
-also updates the JIRA issue status to "In Review".
+Create a merge request for current branch. Target branch defaults to
+`defaults.gitlab.targetBranch` or matched project `gitlab.targetBranch` when
+configured, else falls back to `master`. It also updates JIRA issue status to
+"In Review" when Jira is enabled for current folder and branch name starts with
+Jira key.
 
 ```bash
 gira mr [options]
@@ -132,8 +139,10 @@ gira mr [options]
 
 **Options:**
 
-- `-t, --target <target>`: Specify the target branch for the merge request
-  (default: master).
+- `-t, --target <target>`: Specify target branch for merge request. Overrides
+  configured `gitlab.targetBranch`.
+- `--title <title>`: Explicit merge request title. If omitted, Gira derives the
+  title from branch name.
 - `-l, --labels <labels>`: Comma-separated labels for the merge request.
 - `-d, --draft`: Create a draft merge request.
 
@@ -158,6 +167,125 @@ gira merge <merge-request-id> [options]
 - `--close-jira`: Close the associated JIRA issue.
 - `--delete-branch`: Delete the branch after merging.
 
+## Config File
+
+Gira reads config from `~/.gira/config.json`.
+
+Create it with:
+
+```bash
+gira init
+```
+
+Overwrite existing config with:
+
+```bash
+gira init --force
+```
+
+Template:
+
+```json
+{
+  "defaults": {
+    "gitlab": {
+      "url": "",
+      "apiToken": "",
+      "projectId": "",
+      "userId": "",
+      "targetBranch": ""
+    },
+    "jira": {
+      "enabled": true,
+      "url": "",
+      "apiToken": "",
+      "userEmail": "",
+      "userId": "",
+      "projectKey": "",
+      "issueType": "",
+      "subtaskIssueType": ""
+    }
+  },
+  "projects": []
+}
+```
+
+Empty string values are ignored, so they do not override environment variables.
+
+### Per-project settings
+
+`projects[].path` is matched against current working directory. Longest matching
+path wins.
+
+If you keep linked worktrees outside project root, set `worktreeBasePath` on the
+project entry so commands like `gira mr` still resolve same project config when
+run inside worktree directory.
+
+```json
+{
+  "defaults": {
+    "gitlab": {
+      "url": "https://gitlab.example.com",
+      "apiToken": "gitlab-token",
+      "userId": "123",
+      "targetBranch": "main"
+    },
+    "jira": {
+      "enabled": true,
+      "url": "https://company.atlassian.net",
+      "apiToken": "jira-token",
+      "userEmail": "me@example.com",
+      "userId": "jira-user-id",
+      "issueType": "Task",
+      "subtaskIssueType": "Sub-task"
+    }
+  },
+  "projects": [
+    {
+      "path": "~/Projects/app-one",
+      "worktreeBasePath": "~/Projects/app-one-worktrees",
+      "gitlab": {
+        "projectId": "111",
+        "targetBranch": "release"
+      },
+      "jira": {
+        "projectKey": "APP",
+        "issueType": "Task",
+        "subtaskIssueType": "Sub-task"
+      }
+    },
+    {
+      "path": "~/Projects/internal-tool",
+      "gitlab": {
+        "projectId": "222"
+      },
+      "jira": {
+        "enabled": false
+      }
+    }
+  ]
+}
+```
+
+When `gira create` runs without `--type`, `jira.issueType` is used for
+standalone issues and children of epics, while `jira.subtaskIssueType` is used
+for children of standard issues.
+
+Resolution order:
+
+- environment variables
+- `defaults`
+- matched `projects[]` entry
+- CLI flags
+
+Final precedence is `CLI > project > defaults > env`.
+
+When Jira is disabled for current folder:
+
+- `gira mr` still creates merge requests
+- `gira merge` still merges merge requests
+- Jira-only commands fail with a clear error
+
 ### Usual Workflow
 
 ```bash
@@ -181,7 +309,17 @@ gira mr
 ```
 
 Will create a merge request for the current branch, targeting the master branch,
-and update the JIRA issue status to "In Review".
+and update the JIRA issue status to "In Review" when branch name starts with a
+Jira key.
+
+```bash
+gira mr --title "Release 1.2.0"
+```
+
+Will create a merge request with explicit title `Release 1.2.0`.
+
+Without `--title`, non-Jira branch names are converted to readable titles. For
+example, `feat/mobile/login-flow` becomes `feat: Mobile login flow`.
 
 ```bash
 gira status Done
@@ -192,7 +330,8 @@ it will attempt to derive it from the current Git branch name.
 
 ## Environment Variables
 
-To use Gira, you need to set the following environment variables:
+You can still configure Gira with environment variables. They are used as
+fallback values when config file does not provide them:
 
 - `JIRA_API_TOKEN`: Your JIRA API token.
 - `JIRA_URL`: The base URL for your JIRA instance.

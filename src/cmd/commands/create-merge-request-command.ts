@@ -1,5 +1,6 @@
 import * as GitlabApi from "../../gitlab/gitlab-api.ts";
 import * as JiraApi from "../../jira/jira-api.ts";
+import { resolveProjectConfig } from "../../config/resolve-project-config.ts";
 import * as Logger from "../../utils/logger.ts";
 import { getCurrentBranch } from "../../gitlab/git-branch.ts";
 import {
@@ -7,15 +8,18 @@ import {
   jiraSummaryFromBranchName,
 } from "../../utils/jira-from-branch-name.ts";
 import { copyToClipboard } from "../../utils/clipboard.ts";
+import { createTitleFromBranchName } from "../../utils/create-title-from-branch-name.ts";
 
 export async function createMergeRequestCommand({
   labels,
   draft,
-  targetBranch = "master",
+  targetBranch,
+  title,
 }: {
   labels?: string;
   draft?: boolean;
   targetBranch?: string;
+  title?: string;
 }) {
   const sourceBranch = await getCurrentBranch();
 
@@ -24,20 +28,26 @@ export async function createMergeRequestCommand({
   }
 
   const jiraKey = jiraKeyFromBranchName(sourceBranch);
-  let title = `${jiraKey} ${jiraSummaryFromBranchName(sourceBranch)}`;
+  const jiraSummary = jiraSummaryFromBranchName(sourceBranch);
+  let mergeRequestTitle = title;
 
-  if (!title) {
-    throw new Error("No title found.");
+  if (!mergeRequestTitle) {
+    mergeRequestTitle = jiraKey && jiraSummary
+      ? `${jiraKey} ${jiraSummary}`
+      : createTitleFromBranchName(sourceBranch);
   }
 
   if (draft) {
-    title = `Draft: ${title}`;
+    mergeRequestTitle = `Draft: ${mergeRequestTitle}`;
   }
+
+  const { gitlab, jira } = await resolveProjectConfig();
+  const resolvedTargetBranch = targetBranch ?? gitlab.targetBranch ?? "master";
 
   const url = await GitlabApi.createMergeRequest(
     sourceBranch,
-    targetBranch,
-    title,
+    resolvedTargetBranch,
+    mergeRequestTitle,
     labels,
   );
 
@@ -49,8 +59,12 @@ export async function createMergeRequestCommand({
     Logger.info("Could not copy link to clipboard");
   }
 
+  if (!jira.enabled || !jiraKey) {
+    return;
+  }
+
   const statusName = "In Review";
-  await JiraApi.changeIssueStatus(jiraKey ?? "", statusName);
+  await JiraApi.changeIssueStatus(jiraKey, statusName);
 
   Logger.success(`Changed status of issue ${jiraKey} to ${statusName}`);
 }

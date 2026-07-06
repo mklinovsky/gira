@@ -6,8 +6,8 @@
     "dev": "deno run -A src/main.ts",
     "lint": "deno lint",
     "check": "deno check src/main.ts",
-    "test": "deno test",
-    "pre-commit": "deno fmt && deno lint && deno check src/main.ts && deno test"
+    "test": "deno test --allow-env --allow-read --allow-write",
+    "pre-commit": "deno fmt && deno lint && deno check src/main.ts && deno test --allow-env --allow-read --allow-write"
   },
   "imports": {
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.8",
