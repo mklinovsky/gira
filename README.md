@@ -1,7 +1,5 @@
 # Gira CLI
 
-[![JSR](https://jsr.io/badges/@mklinovsky/gira)](https://jsr.io/@mklinovsky/gira)
-
 Gira is a command-line tool designed to streamline the management of GitLab and
 JIRA tasks. It allows you to create JIRA issues, change their status, and create
 merge requests with ease.
@@ -24,36 +22,21 @@ curl -fsSL https://raw.githubusercontent.com/mklinovsky/gira/main/scripts/instal
 The script will also attempt to add the installation directory to your shell's
 `PATH`. If it cannot, it will provide instructions on how to do so manually.
 
-### With Deno
+### With Go
 
-Ensure you have [Deno](https://deno.com/) installed on your system.
-
-Then, install Gira using the `deno install` command, specifying permissions
-individually for more fine-grained control:
+Ensure you have [Go](https://go.dev/) 1.25 or newer installed, then:
 
 ```bash
-deno install -g --allow-env --allow-sys --allow-read --allow-net --allow-run -n gira jsr:@mklinovsky/gira
+go install github.com/mklinovsky/gira@latest
 ```
 
-- `-g`: Installs the executable globally.
-- `--allow-net`: Allows network access for API calls to Jira and GitLab.
-- `--allow-env`: Allows access to environment variables for API tokens and URLs.
-- `--allow-sys`: Allows access to system information.
-- `--allow-read`: Allows reading files.
-- `--allow-run`: Allows running subprocesses (e.g., `pbcopy` for copying to
-  clipboard).
-- `-n gira`: Specifies the executable name as `gira`.
-
-Alternatively, you can grant all permissions (less recommended for security
-reasons):
+### From source
 
 ```bash
-deno install -g -A -n gira jsr:@mklinovsky/gira
+git clone https://github.com/mklinovsky/gira.git
+cd gira
+go build -o gira .
 ```
-
-- `-A`: Grants all permissions (network, environment variables, etc.) required
-  by the CLI. This is a convenient alternative to specifying individual
-  permissions.
 
 ## Usage
 
