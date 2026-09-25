@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"os/exec"
-	"path/filepath"
 	"strings"
 )
 
@@ -78,21 +77,6 @@ func createBranch(ctx context.Context, runner Runner, e *env, branchName string)
 	}
 
 	e.info("Switched to new branch: %s", branchName)
-
-	return nil
-}
-
-func createWorktree(ctx context.Context, runner Runner, e *env, branchName, baseDir string) error {
-	worktreePath := filepath.Join(baseDir, branchName)
-
-	if _, err := runner.Run(ctx, "git", "worktree", "add", worktreePath, "-b", branchName); err != nil {
-		e.failure(err)
-
-		return nil
-	}
-
-	e.success("Created worktree at %s", worktreePath)
-	e.info("Run: cd %s", worktreePath)
 
 	return nil
 }

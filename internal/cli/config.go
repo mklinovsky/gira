@@ -90,6 +90,8 @@ func newConfigCommand(a *app) *cli.Command {
 				{"projectKey", resolved.Jira.ProjectKey},
 				{"issueType", resolved.Jira.IssueType},
 				{"subtaskIssueType", resolved.Jira.SubtaskIssueType},
+				{"startStatus", resolved.Jira.StartStatus},
+				{"reviewStatus", resolved.Jira.ReviewStatus},
 			})
 
 			return nil
@@ -137,6 +139,8 @@ func jiraRows(section *gira.JiraSection) [][2]string {
 	rows = appendRow(rows, "projectKey", section.ProjectKey, false)
 	rows = appendRow(rows, "issueType", section.IssueType, false)
 	rows = appendRow(rows, "subtaskIssueType", section.SubtaskIssueType, false)
+	rows = appendRow(rows, "startStatus", section.StartStatus, false)
+	rows = appendRow(rows, "reviewStatus", section.ReviewStatus, false)
 
 	return rows
 }

@@ -40,9 +40,7 @@ func runWith(args []string, version string, a *app) int {
 		fmt.Fprintln(cmd.Root().Writer, cmd.Version)
 	}
 
-	normalized := append([]string{"gira"}, NormalizeOptionalValue(args)...)
-
-	err := newRootCommand(version, a).Run(context.Background(), normalized)
+	err := newRootCommand(version, a).Run(context.Background(), append([]string{"gira"}, args...))
 
 	switch {
 	case err == nil:

@@ -24,7 +24,9 @@ const wantTemplate = `{
       "userId": "",
       "projectKey": "",
       "issueType": "",
-      "subtaskIssueType": ""
+      "subtaskIssueType": "",
+      "startStatus": "",
+      "reviewStatus": ""
     }
   },
   "projects": []
@@ -76,6 +78,8 @@ func TestInitConfigWritesTemplate(t *testing.T) {
 	for name, got := range map[string]*string{
 		"jira.issueType":        config.Defaults.Jira.IssueType,
 		"jira.subtaskIssueType": config.Defaults.Jira.SubtaskIssueType,
+		"jira.startStatus":      config.Defaults.Jira.StartStatus,
+		"jira.reviewStatus":     config.Defaults.Jira.ReviewStatus,
 	} {
 		if got != nil {
 			t.Errorf("%s = %q, want unset", name, *got)

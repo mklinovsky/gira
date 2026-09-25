@@ -278,9 +278,31 @@ func TestChangeIssueStatusMatchesCaseInsensitively(t *testing.T) {
 	}
 }
 
+func TestChangeIssueStatusMatchesTargetStatus(t *testing.T) {
+	stub := newJiraStub(t, map[string]func(http.ResponseWriter){
+		"GET /rest/api/3/issue/APP-1/transitions": writeJSON(200, `{"transitions":[
+			{"id":"11","name":"Open","to":{"name":"Open"}},
+			{"id":"21","name":"Start progress","to":{"name":"In Progress"}}
+		]}`),
+		"POST /rest/api/3/issue/APP-1/transitions": writeJSON(204, ``),
+	})
+
+	if err := stub.jira(baseJiraConfig()).ChangeIssueStatus(context.Background(), "APP-1", "In Progress"); err != nil {
+		t.Fatalf("ChangeIssueStatus returned error: %v", err)
+	}
+
+	transition := jsonBody(t, stub.requests[1].Body)["transition"].(map[string]any)
+	if got := transition["id"]; got != "21" {
+		t.Errorf("transition.id = %v, want 21", got)
+	}
+}
+
 func TestChangeIssueStatusUnknownStatus(t *testing.T) {
 	stub := newJiraStub(t, map[string]func(http.ResponseWriter){
-		"/rest/api/3/issue/APP-1/transitions": writeJSON(200, `{"transitions":[{"id":"31","name":"In Review"},{"id":"41","name":"Done"}]}`),
+		"/rest/api/3/issue/APP-1/transitions": writeJSON(200, `{"transitions":[
+			{"id":"31","name":"In Review"},
+			{"id":"41","name":"Resolve","to":{"name":"Done"}}
+		]}`),
 	})
 
 	err := stub.jira(baseJiraConfig()).ChangeIssueStatus(context.Background(), "APP-1", "Shipped")
@@ -288,7 +310,7 @@ func TestChangeIssueStatusUnknownStatus(t *testing.T) {
 	if err == nil {
 		t.Fatal("ChangeIssueStatus succeeded, want error")
 	}
-	want := `Status "Shipped" not found. Available statuses: In Review, Done`
+	want := `Status "Shipped" not found. Available statuses: In Review, Resolve (Done)`
 	if err.Error() != want {
 		t.Errorf("error = %q, want %q", err.Error(), want)
 	}

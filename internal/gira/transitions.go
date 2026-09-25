@@ -11,6 +11,23 @@ import (
 type Transition struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+	To   struct {
+		Name string `json:"name"`
+	} `json:"to"`
+}
+
+// Workflows often name a transition differently from the status it leads to
+// ("Start progress" -> "In Progress"), so both are accepted.
+func (t Transition) matches(statusName string) bool {
+	return strings.EqualFold(t.Name, statusName) || strings.EqualFold(t.To.Name, statusName)
+}
+
+func (t Transition) label() string {
+	if t.To.Name == "" || strings.EqualFold(t.To.Name, t.Name) {
+		return t.Name
+	}
+
+	return t.Name + " (" + t.To.Name + ")"
 }
 
 func (j *Jira) Transitions(ctx context.Context, issueKey string) ([]Transition, error) {
@@ -36,16 +53,16 @@ func (j *Jira) ChangeIssueStatus(ctx context.Context, issueKey, statusName strin
 	}
 
 	transitionID := ""
-	names := make([]string, 0, len(transitions))
+	labels := make([]string, 0, len(transitions))
 	for _, transition := range transitions {
-		names = append(names, transition.Name)
-		if transitionID == "" && strings.EqualFold(transition.Name, statusName) {
+		labels = append(labels, transition.label())
+		if transitionID == "" && transition.matches(statusName) {
 			transitionID = transition.ID
 		}
 	}
 
 	if transitionID == "" {
-		return fmt.Errorf("Status %q not found. Available statuses: %s", statusName, strings.Join(names, ", "))
+		return fmt.Errorf("Status %q not found. Available statuses: %s", statusName, strings.Join(labels, ", "))
 	}
 
 	payload := map[string]idRef{"transition": {ID: transitionID}}

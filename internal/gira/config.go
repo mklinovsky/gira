@@ -27,6 +27,8 @@ type JiraSection struct {
 	ProjectKey       *string
 	IssueType        *string
 	SubtaskIssueType *string
+	StartStatus      *string
+	ReviewStatus     *string
 }
 
 type Defaults struct {
@@ -64,6 +66,8 @@ type configTemplate struct {
 			ProjectKey       string `json:"projectKey"`
 			IssueType        string `json:"issueType"`
 			SubtaskIssueType string `json:"subtaskIssueType"`
+			StartStatus      string `json:"startStatus"`
+			ReviewStatus     string `json:"reviewStatus"`
 		} `json:"jira"`
 	} `json:"defaults"`
 	Projects []ProjectConfig `json:"projects"`
@@ -234,6 +238,8 @@ func parseJiraSection(raw json.RawMessage) *JiraSection {
 		ProjectKey:       normalizeString(record["projectKey"]),
 		IssueType:        normalizeString(record["issueType"]),
 		SubtaskIssueType: normalizeString(record["subtaskIssueType"]),
+		StartStatus:      normalizeString(record["startStatus"]),
+		ReviewStatus:     normalizeString(record["reviewStatus"]),
 	}
 
 	if section == (JiraSection{}) {

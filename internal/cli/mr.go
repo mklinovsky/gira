@@ -89,7 +89,7 @@ func newMrCommand(a *app) *cli.Command {
 				return err
 			}
 
-			const statusName = "In Review"
+			statusName := resolved.Jira.ReviewStatus
 			if err := jira.ChangeIssueStatus(ctx, jiraKey, statusName); err != nil {
 				return err
 			}

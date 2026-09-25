@@ -11,14 +11,14 @@ func TestResolveProjectConfigUsesLongestMatchingPath(t *testing.T) {
 	writeConfig(t, homeDir, `{
 		"defaults": {
 			"gitlab": {"url": "https://gitlab.example.com", "targetBranch": "main"},
-			"jira": {"issueType": "Task"}
+			"jira": {"issueType": "Task", "startStatus": "Doing"}
 		},
 		"projects": [
 			{"path": "~/Projects/alpha", "gitlab": {"projectId": "111"}},
 			{
 				"path": "~/Projects/alpha/app",
 				"gitlab": {"projectId": "222", "targetBranch": "develop"},
-				"jira": {"enabled": false, "subtaskIssueType": "Sub-task"}
+				"jira": {"enabled": false, "subtaskIssueType": "Sub-task", "reviewStatus": "Reviewing"}
 			}
 		]
 	}`)
@@ -46,6 +46,12 @@ func TestResolveProjectConfigUsesLongestMatchingPath(t *testing.T) {
 	}
 	if got, want := resolved.Jira.SubtaskIssueType, "Sub-task"; got != want {
 		t.Errorf("jira.subtaskIssueType = %q, want %q", got, want)
+	}
+	if got, want := resolved.Jira.StartStatus, "Doing"; got != want {
+		t.Errorf("jira.startStatus = %q, want %q", got, want)
+	}
+	if got, want := resolved.Jira.ReviewStatus, "Reviewing"; got != want {
+		t.Errorf("jira.reviewStatus = %q, want %q", got, want)
 	}
 	if resolved.MatchedProject == nil || resolved.MatchedProject.Path != "~/Projects/alpha/app" {
 		t.Errorf("matched project = %+v, want ~/Projects/alpha/app", resolved.MatchedProject)
@@ -196,6 +202,12 @@ func TestResolveProjectConfigNoMatchFallsBackToDefaults(t *testing.T) {
 	}
 	if !resolved.Jira.Enabled {
 		t.Error("jira.enabled = false, want true by default")
+	}
+	if got, want := resolved.Jira.StartStatus, DefaultStartStatus; got != want {
+		t.Errorf("jira.startStatus = %q, want %q", got, want)
+	}
+	if got, want := resolved.Jira.ReviewStatus, DefaultReviewStatus; got != want {
+		t.Errorf("jira.reviewStatus = %q, want %q", got, want)
 	}
 }
 

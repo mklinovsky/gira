@@ -6,7 +6,6 @@ import (
 	"errors"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -123,27 +122,6 @@ func TestCreateBranchSwallowsCheckoutFailure(t *testing.T) {
 
 	if !strings.Contains(stderr.String(), "branch exists") {
 		t.Errorf("stderr = %q, want the git failure reported", stderr.String())
-	}
-}
-
-func TestCreateWorktree(t *testing.T) {
-	runner := newFakeRunner()
-	e, stdout, _ := testEnv()
-	baseDir := filepath.Join("/tmp", "worktrees")
-
-	if err := createWorktree(context.Background(), runner, e, "APP-1-feature", baseDir); err != nil {
-		t.Fatalf("createWorktree returned error: %v", err)
-	}
-
-	worktreePath := filepath.Join(baseDir, "APP-1-feature")
-	if want := "git worktree add " + worktreePath + " -b APP-1-feature"; runner.argv(0) != want {
-		t.Errorf("argv = %q, want %q", runner.argv(0), want)
-	}
-	if !strings.Contains(stdout.String(), "Created worktree at "+worktreePath) {
-		t.Errorf("stdout = %q, want the worktree message", stdout.String())
-	}
-	if !strings.Contains(stdout.String(), "Run: cd "+worktreePath) {
-		t.Errorf("stdout = %q, want the cd hint", stdout.String())
 	}
 }
 

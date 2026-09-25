@@ -149,18 +149,6 @@ func (h *harness) run(args ...string) int {
 	return runWith(args, "0.5.0", h.app)
 }
 
-func TestBranchAndWorktreeTogetherIsUsageError(t *testing.T) {
-	isolate(t)
-	h := newHarness()
-
-	if code := h.run("create", "Summary", "-b", "-w", "/tmp/worktrees"); code != exitUsage {
-		t.Errorf("exit code = %d, want %d", code, exitUsage)
-	}
-	if !strings.Contains(h.stderr.String(), "Cannot use both --branch and --worktree options") {
-		t.Errorf("stderr = %q, want the mutual exclusion message", h.stderr.String())
-	}
-}
-
 func TestUsageErrors(t *testing.T) {
 	tests := []struct {
 		name string
@@ -243,18 +231,20 @@ func TestCreateWithBranchAndBareStart(t *testing.T) {
 	}
 }
 
-func TestCreateWithGroupedShortFlags(t *testing.T) {
+func TestCreateBareStartUsesConfiguredStatus(t *testing.T) {
 	homeDir := isolate(t)
 	stub := newAPIStub(t, map[string]string{
-		"POST /rest/api/3/issue":                   `{"key":"APP-3"}`,
-		"GET /rest/api/3/issue/APP-3/transitions":  `{"transitions":[{"id":"21","name":"Ready"}]}`,
-		"POST /rest/api/3/issue/APP-3/transitions": `{}`,
+		"POST /rest/api/3/issue":                   `{"key":"APP-4"}`,
+		"GET /rest/api/3/issue/APP-4/transitions":  `{"transitions":[{"id":"22","name":"Doing"}]}`,
+		"POST /rest/api/3/issue/APP-4/transitions": `{}`,
 	})
-	writeGiraConfig(t, homeDir, stub.server.URL)
+	writeRawConfig(t, homeDir, `{"defaults":{"jira":{
+		"url":"`+stub.server.URL+`","apiToken":"token","userEmail":"me@example.com",
+		"userId":"user-1","projectKey":"APP","issueType":"Task","startStatus":"Doing"
+	}},"projects":[]}`)
 	h := newHarness()
-	h.runner.stdout["git rev-parse --abbrev-ref HEAD"] = "main\n"
 
-	if code := h.run("create", "Grouped flags", "-as", "Ready"); code != exitOK {
+	if code := h.run("create", "Configured status", "-sa"); code != exitOK {
 		t.Fatalf("exit code = %d, want %d (stderr %q)", code, exitOK, h.stderr.String())
 	}
 
@@ -262,8 +252,35 @@ func TestCreateWithGroupedShortFlags(t *testing.T) {
 	if _, assigned := fields["assignee"]; !assigned {
 		t.Error("payload has no assignee, want -a to have been applied")
 	}
-	if !strings.Contains(h.stdout.String(), "Changed status of issue APP-3 to Ready") {
-		t.Errorf("stdout = %q, want the Ready status", h.stdout.String())
+	if !strings.Contains(h.stdout.String(), "Changed status of issue APP-4 to Doing") {
+		t.Errorf("stdout = %q, want the configured start status", h.stdout.String())
+	}
+}
+
+func TestCreateWithGroupedShortFlags(t *testing.T) {
+	homeDir := isolate(t)
+	stub := newAPIStub(t, map[string]string{
+		"POST /rest/api/3/issue":                   `{"key":"APP-3"}`,
+		"GET /rest/api/3/issue/APP-3/transitions":  `{"transitions":[{"id":"21","name":"In Progress"}]}`,
+		"POST /rest/api/3/issue/APP-3/transitions": `{}`,
+	})
+	writeGiraConfig(t, homeDir, stub.server.URL)
+	h := newHarness()
+	h.runner.stdout["git rev-parse --abbrev-ref HEAD"] = "main\n"
+
+	if code := h.run("create", "Grouped flags", "-sab"); code != exitOK {
+		t.Fatalf("exit code = %d, want %d (stderr %q)", code, exitOK, h.stderr.String())
+	}
+
+	fields := stub.bodyFor(t, http.MethodPost, "/rest/api/3/issue")["fields"].(map[string]any)
+	if _, assigned := fields["assignee"]; !assigned {
+		t.Error("payload has no assignee, want -a to have been applied")
+	}
+	if want := "git checkout -b APP-3-grouped-flags"; h.runner.argv(1) != want {
+		t.Errorf("argv = %q, want %q", h.runner.argv(1), want)
+	}
+	if !strings.Contains(h.stdout.String(), "Changed status of issue APP-3 to In Progress") {
+		t.Errorf("stdout = %q, want the default start status", h.stdout.String())
 	}
 }
 

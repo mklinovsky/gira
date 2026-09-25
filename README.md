@@ -57,10 +57,9 @@ gira create <summary> [options]
 - `-t, --type <type>`: Specify the issue type. If omitted, gira uses configured
   defaults and parent hierarchy.
 - `-b, --branch`: Create a corresponding Git branch.
-- `-w, --worktree <directory>`: Create a Git worktree in the specified base
-  directory (mutually exclusive with `-b`).
 - `-a, --assign`: Assign the issue to yourself.
-- `-s, --start`: Start progress on the issue.
+- `-s, --start`: Start progress on the issue by moving it to `jira.startStatus`
+  (default `In Progress`).
 
 ### Get a JIRA Issue
 
@@ -113,8 +112,8 @@ gira status <status> [options]
 Create a merge request for current branch. Target branch defaults to
 `defaults.gitlab.targetBranch` or matched project `gitlab.targetBranch` when
 configured, else falls back to `master`. It also updates JIRA issue status to
-"In Review" when Jira is enabled for current folder and branch name starts with
-Jira key.
+`jira.reviewStatus` (default `In Review`) when Jira is enabled for current folder
+and branch name starts with Jira key.
 
 ```bash
 gira mr [options]
@@ -186,7 +185,9 @@ Template:
       "userId": "",
       "projectKey": "",
       "issueType": "",
-      "subtaskIssueType": ""
+      "subtaskIssueType": "",
+      "startStatus": "",
+      "reviewStatus": ""
     }
   },
   "projects": []
@@ -254,6 +255,10 @@ When `gira create` runs without `--type`, `jira.issueType` is used for
 standalone issues and children of epics, while `jira.subtaskIssueType` is used
 for children of standard issues.
 
+`jira.startStatus` is the status applied by `gira create --start` (default
+`In Progress`). `jira.reviewStatus` is the status applied by
+`gira mr` (default `In Review`).
+
 Resolution order:
 
 - environment variables
@@ -280,20 +285,12 @@ the name prefixed by the JIRA issue key (proj-123-fix-it), assign the issue to
 yourself, and start progress on it.
 
 ```bash
-gira create -w ../worktrees -a -s "Fix it"
-```
-
-Will create a new JIRA issue with the summary "Fix it", create a Git worktree in
-`../worktrees/proj-123-fix-it`, assign the issue to yourself, and start progress
-on it.
-
-```bash
 gira mr
 ```
 
 Will create a merge request for the current branch, targeting the master branch,
-and update the JIRA issue status to "In Review" when branch name starts with a
-Jira key.
+and update the JIRA issue status to `jira.reviewStatus` when branch name starts
+with a Jira key.
 
 ```bash
 gira mr --title "Release 1.2.0"

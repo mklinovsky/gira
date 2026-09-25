@@ -18,9 +18,8 @@ func newCreateCommand(a *app) *cli.Command {
 			&cli.StringFlag{Name: "type", Aliases: []string{"t"}, Usage: "Issue type"},
 			&cli.StringFlag{Name: "key", Aliases: []string{"k"}, Usage: "Project key (overrides JIRA_PROJECT_KEY env variable)"},
 			&cli.BoolFlag{Name: "branch", Aliases: []string{"b"}, Usage: "Create git branch"},
-			&cli.StringFlag{Name: "worktree", Aliases: []string{"w"}, Usage: "Create git worktree in specified base directory"},
 			&cli.BoolFlag{Name: "assign", Aliases: []string{"a"}, Usage: "Assign to me"},
-			&cli.StringFlag{Name: "start", Aliases: []string{"s"}, Usage: "Start progress"},
+			&cli.BoolFlag{Name: "start", Aliases: []string{"s"}, Usage: "Start progress (moves issue to jira.startStatus)"},
 			&cli.StringFlag{Name: "custom-field", Usage: "Custom field in key=value format"},
 			&cli.StringFlag{Name: "description", Aliases: []string{"d"}, Usage: "Issue description"},
 		},
@@ -31,11 +30,6 @@ func newCreateCommand(a *app) *cli.Command {
 
 			summary := c.Args().Get(0)
 			createBranchFlag := c.Bool("branch")
-			worktreeBaseDir := c.String("worktree")
-
-			if createBranchFlag && worktreeBaseDir != "" {
-				return usagef("Cannot use both --branch and --worktree options")
-			}
 
 			customField, err := gira.ParseCustomField(c.String("custom-field"))
 			if err != nil {
@@ -47,7 +41,7 @@ func newCreateCommand(a *app) *cli.Command {
 				overrides.Jira = &gira.JiraSection{ProjectKey: &projectKey}
 			}
 
-			jira, _, err := a.jira(overrides)
+			jira, resolved, err := a.jira(overrides)
 			if err != nil {
 				return err
 			}
@@ -66,23 +60,17 @@ func newCreateCommand(a *app) *cli.Command {
 
 			a.e.success("Issue created: %s", created.URL)
 
-			if createBranchFlag || worktreeBaseDir != "" {
-				branchName := createBranchName(created.Key, summary)
-
-				if worktreeBaseDir != "" {
-					err = createWorktree(ctx, a.runner, a.e, branchName, worktreeBaseDir)
-				} else {
-					err = createBranch(ctx, a.runner, a.e, branchName)
-				}
-				if err != nil {
+			if createBranchFlag {
+				if err := createBranch(ctx, a.runner, a.e, createBranchName(created.Key, summary)); err != nil {
 					return err
 				}
 			}
 
-			statusName := c.String("start")
-			if statusName == "" {
+			if !c.Bool("start") {
 				return nil
 			}
+
+			statusName := resolved.Jira.StartStatus
 
 			if err := jira.ChangeIssueStatus(ctx, created.Key, statusName); err != nil {
 				return err

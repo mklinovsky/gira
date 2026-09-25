@@ -22,7 +22,14 @@ type ResolvedJira struct {
 	ProjectKey       string
 	IssueType        string
 	SubtaskIssueType string
+	StartStatus      string
+	ReviewStatus     string
 }
+
+const (
+	DefaultStartStatus  = "In Progress"
+	DefaultReviewStatus = "In Review"
+)
 
 type Overrides struct {
 	Gitlab *GitlabSection
@@ -47,7 +54,11 @@ func ResolveProjectConfig(cwd, homeDir string, overrides Overrides) (Resolved, e
 	resolved := Resolved{
 		ConfigPath:     ConfigPath(homeDir),
 		MatchedProject: matched,
-		Jira:           ResolvedJira{Enabled: true},
+		Jira: ResolvedJira{
+			Enabled:      true,
+			StartStatus:  DefaultStartStatus,
+			ReviewStatus: DefaultReviewStatus,
+		},
 	}
 
 	var defaultGitlab, projectGitlab *GitlabSection
@@ -96,6 +107,8 @@ func (r *ResolvedJira) merge(section *JiraSection) {
 	setIfPresent(&r.ProjectKey, section.ProjectKey)
 	setIfPresent(&r.IssueType, section.IssueType)
 	setIfPresent(&r.SubtaskIssueType, section.SubtaskIssueType)
+	setIfPresent(&r.StartStatus, section.StartStatus)
+	setIfPresent(&r.ReviewStatus, section.ReviewStatus)
 }
 
 func setIfPresent(target *string, value *string) {
